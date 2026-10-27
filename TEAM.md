@@ -16,4 +16,5 @@ Where to find each detail (Section 3 of the handout has the same table):
 
 | Name | GitHub username | Laptop (model, operating system) | Cores and threads of the laptop | CPUs in the container (`nproc`) |
 |---|---|---|---|---|
-| | | | | |
+| Nico | @nfernandezdeieu2024-code | MSI Modern 15 H B13M, Windows 11 Pro | 10 cores / 16 threads | 16 |
+| Alfonso | @fonsifdez | Apple MacBook Pro 14" M5 Pro, macOS 26.6.2 | 15 cores / 15 threads | 15 |
