@@ -1,6 +1,6 @@
 github_user: fonsifdez
-laptop: Apple MacBook Pro M5, macOS 26
-date: 2026-10-27 16:15 UTC
+laptop: Apple MacBook Pro 14-inch M5 Pro, macOS 26.6.2
+date: 2026-10-27 16:32 UTC
 cpus_in_container: 15
 architecture: aarch64
 cpu: Apple - 
