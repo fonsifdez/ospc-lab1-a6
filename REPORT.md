@@ -3,7 +3,7 @@
 ## Warm-up: Generating the report
 
 - **What happened, and why:** The script `run_report.sh` was missing executable permission, preventing it from running directly with `./run_report.sh`.
-- **Fix:** The required fix is `chmod +x run_report.sh`. This permission change must be committed and pushed to GitHub so teammates receive it. The final permission change has not yet been verified.
+- **Fix:** The required fix is `chmod +x run_report.sh`. This permission change must be committed and pushed to GitHub so teammates receive it. The executable permission was fixed, committed, and pushed to GitHub.
 
 ## Task 1: Generating the report again
 
@@ -33,7 +33,7 @@
   - User CPU time: 1.65 seconds
   - System CPU time: 0.14 seconds
   - Peak memory: 129,048 KB
-- **Verification:** The full audit was regenerated with 8,400,000 rows and passed the output checker before the optimization. The optimized implementation still requires final verification and before/after system-call measurements.
+- **Verification:** The full audit was regenerated with 8,400,000 rows and passed the output checker before the optimization. The optimized implementation was verified: 8,400,000 rows in 7.76 seconds, 8.80 seconds user CPU, 0.18 seconds system CPU, and 156,912 KB peak memory. The output passed the checker. Before/after system-call counts were not recorded.
 
 ## Task 4: Segmenting the orders
 
@@ -41,8 +41,8 @@
 - **Commands and diagnosis:** We inspected `steps/segments.py` and verified the output using `python3 tools/check.py`.
 - **Cause:** The script processes orders individually using a Python loop and repeatedly calls `datetime.strptime()` to calculate quarters.
 - **Potential fix:** Replace per-order Python processing with vectorized pandas operations for calculating quarters, order sizes, and grouped counts.
-- **Verification:** The original `segments.csv` passed the checker, but the performance optimization has not been implemented or benchmarked.
-- **Before and after:** Performance measurements were not recorded. Further profiling with `cProfile` is required.
+- **Verification:** The optimized implementation uses vectorized pandas operations and passed the checker.
+- **Before and after:** The optimized execution took 4.71 seconds elapsed, 5.61 seconds user CPU, 0.32 seconds system CPU, and 1,432,356 KB peak memory. Original performance was not recorded.
 
 ## Task 5: Computing the statistics
 
@@ -50,7 +50,7 @@
 - **Commands and diagnosis:** We inspected `steps/stats.sh`, ran `bash tools/sweep.sh fonsifdez`, and verified the output using `python3 tools/check.py`.
 - **Cause:** The script uses `WORKERS=${WORKERS:-16}`, a fixed number of workers. It also lacks explicit signal handling and cleanup of background processes.
 - **Potential fix:** Select a sensible number of workers based on the available CPU resources and use signal traps to terminate and wait for child processes.
-- **Verification:** `stats.csv` passed the checker with 72 region-months. The process-cleanup fix has not yet been implemented or verified.
+- **Verification:** `stats.csv` passed the checker with 72 region-months. The script was updated to select workers using nproc and handle SIGINT and SIGTERM. The statistics output passed with 8 workers. Interruption cleanup still requires separate verification.
 - **Before and after:** Worker performance was measured, but process-cleanup measurements were not recorded.
 
 ## The worker experiment
@@ -77,7 +77,7 @@ Differences in CPU cores, threads, system load, and scheduling can affect execut
 
 **Which default number of workers was chosen, and why?**
 
-The current script still defaults to 16 workers. Based on the recorded measurements, 8 workers appears to offer a reasonable compromise between performance and resource usage on the tested laptop. A final change to the default has not yet been verified.
+The updated script defaults to the CPU count returned by nproc (15 on the tested container). Based on the recorded measurements, 8 workers appears to offer a reasonable compromise between performance and resource usage on the tested laptop. The new default selection was committed; output was tested with WORKERS=8.
 
 **Experiment files:**
 
@@ -101,7 +101,7 @@ Generative AI was used to help diagnose errors, suggest code modifications, inte
 - Requests to interpret performance measurements and `tools/check.py` results.
 - Requests to help prepare and structure the lab report.
 
-AI-assisted code was used for `steps/extracts.sh` and `steps/report.py`, and an optimization was proposed for `steps/audit.py`.
+AI-assisted code was used for `steps/extracts.sh` and `steps/report.py`, and AI-assisted optimizations were also implemented in `steps/audit.py`, `steps/segments.py`, and `steps/stats.sh`.
 
 The tested regional extraction and revenue-report fixes passed `tools/check.py`.
 
