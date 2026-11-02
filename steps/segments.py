@@ -1,34 +1,33 @@
-"""Number of orders per region, quarter and order size (segments.csv)."""
+"""Number of orders per region, quarter and order size."""
+
+# AI assistance: ChatGPT (OpenAI) suggested vectorized
+# pandas operations instead of per-row Python processing.
 
 import os
-from datetime import datetime
-
 import pandas as pd
 
 DATA = os.environ.get("DATA", os.path.expanduser("~/data/sales_2025.csv"))
 OUT = os.environ.get("OUT", os.path.expanduser("~/data/out"))
 os.makedirs(OUT, exist_ok=True)
 
-orders = pd.read_csv(DATA, usecols=["order_date", "region", "quantity", "unit_price"])
+orders = pd.read_csv(
+    DATA,
+    usecols=["order_date", "region", "quantity", "unit_price"]
+)
 
+quarter = pd.to_datetime(orders["order_date"]).dt.quarter
+value = orders["quantity"] * orders["unit_price"]
 
-def segment(order):
-    quarter = (datetime.strptime(order.order_date, "%Y-%m-%d").month - 1) // 3 + 1
-    value = order.quantity * order.unit_price
-    if value >= 500:
-        size = "large"
-    elif value >= 100:
-        size = "medium"
-    else:
-        size = "small"
-    return f"Q{quarter} {size}"
+size = pd.cut(
+    value,
+    bins=[float("-inf"), 100, 500, float("inf")],
+    labels=["small", "medium", "large"],
+    right=False
+)
 
+orders["segment"] = "Q" + quarter.astype(str) + " " + size.astype(str)
 
-counts = {}
-for order in orders.itertuples(index=False):
-    key = (order.region, segment(order))
-    counts[key] = counts.get(key, 0) + 1
-
-table = pd.Series(counts).rename_axis(["region", "segment"]).unstack(fill_value=0)
+table = pd.crosstab(orders["region"], orders["segment"])
 table.to_csv(os.path.join(OUT, "segments.csv"))
+
 print("segments: done")
